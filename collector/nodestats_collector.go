@@ -42,6 +42,11 @@ type NodeStatsCollector struct {
 	PipelinePluginEventsQueuePushDuration *prometheus.Desc
 	PipelinePluginEventsIn                *prometheus.Desc
 	PipelinePluginEventsOut               *prometheus.Desc
+	PipelinePluginDocumentsSuccesses      *prometheus.Desc
+	PipelinePluginDocumentsFailures       *prometheus.Desc
+	PipelinePluginBulkRequestsSuccesses   *prometheus.Desc
+	PipelinePluginBulkRequestsWithErrors  *prometheus.Desc
+	PipelinePluginBulkRequestsFailures    *prometheus.Desc
 	PipelinePluginMatches                 *prometheus.Desc
 	PipelinePluginFailures                *prometheus.Desc
 
@@ -246,6 +251,41 @@ func NewNodeStatsCollector(logstashEndpoint string) (Collector, error) {
 		PipelinePluginEventsOut: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, subsystem, "plugin_events_out_total"),
 			"plugin_events_out",
+			[]string{"pipeline", "plugin", "plugin_id", "plugin_type"},
+			nil,
+		),
+
+		PipelinePluginDocumentsSuccesses: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "plugin_documents_successes_total"),
+			"plugin_documents_successes",
+			[]string{"pipeline", "plugin", "plugin_id", "plugin_type"},
+			nil,
+		),
+
+		PipelinePluginDocumentsFailures: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "plugin_documents_failures_total"),
+			"plugin_documents_failures",
+			[]string{"pipeline", "plugin", "plugin_id", "plugin_type"},
+			nil,
+		),
+
+		PipelinePluginBulkRequestsSuccesses: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "plugin_bulk_requests_successes_total"),
+			"plugin_bulk_requests_successes",
+			[]string{"pipeline", "plugin", "plugin_id", "plugin_type"},
+			nil,
+		),
+
+		PipelinePluginBulkRequestsWithErrors: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "plugin_bulk_requests_with_errors_total"),
+			"plugin_bulk_requests_with_errors",
+			[]string{"pipeline", "plugin", "plugin_id", "plugin_type"},
+			nil,
+		),
+
+		PipelinePluginBulkRequestsFailures: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "plugin_bulk_requests_failures_total"),
+			"plugin_bulk_requests_failures",
 			[]string{"pipeline", "plugin", "plugin_id", "plugin_type"},
 			nil,
 		),
@@ -672,6 +712,55 @@ func (c *NodeStatsCollector) collect(ch chan<- prometheus.Metric) (*prometheus.D
 				plugin.ID,
 				"output",
 			)
+			if plugin.Documents != nil {
+				ch <- prometheus.MustNewConstMetric(
+					c.PipelinePluginDocumentsSuccesses,
+					prometheus.CounterValue,
+					float64(plugin.Documents.Successes),
+					pipelineID,
+					plugin.Name,
+					plugin.ID,
+					"output",
+				)
+				ch <- prometheus.MustNewConstMetric(
+					c.PipelinePluginDocumentsFailures,
+					prometheus.CounterValue,
+					float64(plugin.Documents.NonRetryableFailures),
+					pipelineID,
+					plugin.Name,
+					plugin.ID,
+					"output",
+				)
+			}
+			if plugin.BulkRequests != nil {
+				ch <- prometheus.MustNewConstMetric(
+					c.PipelinePluginBulkRequestsSuccesses,
+					prometheus.CounterValue,
+					float64(plugin.BulkRequests.Successes),
+					pipelineID,
+					plugin.Name,
+					plugin.ID,
+					"output",
+				)
+				ch <- prometheus.MustNewConstMetric(
+					c.PipelinePluginBulkRequestsFailures,
+					prometheus.CounterValue,
+					float64(plugin.BulkRequests.Failures),
+					pipelineID,
+					plugin.Name,
+					plugin.ID,
+					"output",
+				)
+				ch <- prometheus.MustNewConstMetric(
+					c.PipelinePluginBulkRequestsWithErrors,
+					prometheus.CounterValue,
+					float64(plugin.BulkRequests.WithErrors),
+					pipelineID,
+					plugin.Name,
+					plugin.ID,
+					"output",
+				)
+			}
 		}
 
 		if pipeline.Queue.Type != "memory" {

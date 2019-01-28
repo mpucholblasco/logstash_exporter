@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var noQueueJSON = []byte(`
@@ -110,6 +112,144 @@ var noQueueJSON = []byte(`
             "out": 0
           },
           "name": "stdout"
+        }
+      ]
+    },
+    "reloads": {
+      "last_error": null,
+      "successes": 0,
+      "last_success_timestamp": null,
+      "last_failure_timestamp": null,
+      "failures": 0
+    },
+    "queue": {
+      "type": "memory"
+    },
+    "id": "main"
+  },
+  "reloads": {
+    "successes": 0,
+    "failures": 0
+  },
+  "os": {}
+}
+`)
+
+var elasticSearchOutputJSON = []byte(`
+{
+  "host": "69e7fa935209",
+  "version": "6.4.0",
+  "http_address": "0.0.0.0:9600",
+  "id": "4607a9c2-8517-4e95-a7ce-742e39264a95",
+  "name": "69e7fa935209",
+  "jvm": {
+    "threads": {
+      "count": 20,
+      "peak_count": 20
+    },
+    "mem": {
+      "heap_used_percent": 20,
+      "heap_committed_in_bytes": 275677184,
+      "heap_max_in_bytes": 1056309248,
+      "heap_used_in_bytes": 215538696,
+      "non_heap_used_in_bytes": 75598880,
+      "non_heap_committed_in_bytes": 79458304,
+      "pools": {
+        "survivor": {
+          "peak_used_in_bytes": 17432576,
+          "used_in_bytes": 14406616,
+          "peak_max_in_bytes": 17432576,
+          "max_in_bytes": 17432576,
+          "committed_in_bytes": 17432576
+        },
+        "old": {
+          "peak_used_in_bytes": 88768424,
+          "used_in_bytes": 88768424,
+          "peak_max_in_bytes": 899284992,
+          "max_in_bytes": 899284992,
+          "committed_in_bytes": 118652928
+        },
+        "young": {
+          "peak_used_in_bytes": 139591680,
+          "used_in_bytes": 112363656,
+          "peak_max_in_bytes": 139591680,
+          "max_in_bytes": 139591680,
+          "committed_in_bytes": 139591680
+        }
+      }
+    },
+    "gc": {
+      "collectors": {
+        "old": {
+          "collection_time_in_millis": 108,
+          "collection_count": 2
+        },
+        "young": {
+          "collection_time_in_millis": 630,
+          "collection_count": 7
+        }
+      }
+    },
+    "uptime_in_millis": 24099
+  },
+  "process": {
+    "open_file_descriptors": 63,
+    "peak_open_file_descriptors": 63,
+    "max_file_descriptors": 1048576,
+    "mem": {
+      "total_virtual_in_bytes": 3948072960
+    },
+    "cpu": {
+      "total_in_millis": 37720,
+      "percent": 21,
+      "load_average": {
+        "1m": 0.94,
+        "5m": 0.22,
+        "15m": 0.08
+      }
+    }
+  },
+  "pipeline": {
+    "events": {
+      "duration_in_millis": 0,
+      "in": 0,
+      "filtered": 0,
+      "out": 0,
+      "queue_push_duration_in_millis": 0
+    },
+    "plugins": {
+      "inputs": [
+        {
+          "id": "5681ae93b83a24a100eacdb291ca4679effa35bf-1",
+          "events": {
+            "out": 0,
+            "queue_push_duration_in_millis": 0
+          },
+          "name": "stdin"
+        }
+      ],
+      "filters": [],
+      "outputs": [
+        {
+          "id": "cbd71d1d2014073f674c9bd4f24484bc5f8219824f6e8a0d70a6438aeb94e251",
+          "documents": {
+            "successes": 865539,
+            "non_retryable_failures": 600
+          },
+          "events": {
+            "duration_in_millis": 2452230,
+            "in": 866139,
+            "out": 866139
+          },
+          "bulk_requests": {
+            "successes": 204398,
+            "with_errors": 534,
+            "responses": {
+              "200": 204932
+            },
+            "failures": 14
+          },
+          "name": "elasticsearch"
         }
       ]
     },
@@ -281,9 +421,22 @@ func TestPipelineNoQueueStats(t *testing.T) {
 	m := &MockHTTPHandler{ReturnJSON: noQueueJSON}
 	getMetrics(m, &response)
 
-	if response.Pipeline.Queue.Capacity.MaxUnreadEvents == 12 {
-		t.Fail()
-	}
+	assert.NotEqual(t, 12, response.Pipeline.Queue.Capacity.MaxUnreadEvents)
+	assert.Nil(t, response.Pipeline.Plugins.Outputs[0].Documents)
+	assert.Nil(t, response.Pipeline.Plugins.Outputs[0].BulkRequests)
+}
+
+func TestPipelineElasticSearchOutputStats(t *testing.T) {
+	var response NodeStatsResponse
+
+	m := &MockHTTPHandler{ReturnJSON: elasticSearchOutputJSON}
+	getMetrics(m, &response)
+
+	assert.Equal(t, 865539, response.Pipeline.Plugins.Outputs[0].Documents.Successes)
+	assert.Equal(t, 600, response.Pipeline.Plugins.Outputs[0].Documents.NonRetryableFailures)
+	assert.Equal(t, 204398, response.Pipeline.Plugins.Outputs[0].BulkRequests.Successes)
+	assert.Equal(t, 534, response.Pipeline.Plugins.Outputs[0].BulkRequests.WithErrors)
+	assert.Equal(t, 14, response.Pipeline.Plugins.Outputs[0].BulkRequests.Failures)
 }
 
 func TestPipelineQueueStats(t *testing.T) {
@@ -292,9 +445,7 @@ func TestPipelineQueueStats(t *testing.T) {
 	m := &MockHTTPHandler{ReturnJSON: queueJSON}
 	getMetrics(m, &response)
 
-	if response.Pipeline.Queue.Capacity.MaxUnreadEvents != 12 {
-		t.Fail()
-	}
+	assert.Equal(t, 12, response.Pipeline.Queue.Capacity.MaxUnreadEvents)
 }
 
 func TestPipelineDLQueueStats(t *testing.T) {
@@ -303,7 +454,5 @@ func TestPipelineDLQueueStats(t *testing.T) {
 	m := &MockHTTPHandler{ReturnJSON: dlQueueJSON}
 	getMetrics(m, &response)
 
-	if response.Pipeline.DeadLetterQueue.QueueSizeInBytes != 1337 {
-		t.Fail()
-	}
+	assert.Equal(t, 1337, response.Pipeline.DeadLetterQueue.QueueSizeInBytes)
 }

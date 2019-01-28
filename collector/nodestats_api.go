@@ -35,7 +35,16 @@ type Pipeline struct {
 			Formats int `json:"formats,omitempty"`
 		} `json:"filters"`
 		Outputs []struct {
-			ID     string `json:"id"`
+			ID           string `json:"id"`
+			BulkRequests *struct {
+				Successes  int `json:"successes"`
+				WithErrors int `json:"with_errors"`
+				Failures   int `json:"failures"`
+			} `json:"bulk_requests,omitempty"`
+			Documents *struct {
+				Successes            int `json:"successes"`
+				NonRetryableFailures int `json:"non_retryable_failures"`
+			} `json:"documents,omitempty"`
 			Events struct {
 				DurationInMillis int `json:"duration_in_millis"`
 				In               int `json:"in"`
