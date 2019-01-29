@@ -4,8 +4,8 @@ Prometheus exporter for the metrics available in Logstash since version 5.0.
 ## Usage
 
 ```bash
-go get -u github.com/mpucholblasco/logstash_exporter
-cd $GOPATH/src/github.com/mpucholblasco/logstash_exporter
+go get -u github.com/sequra/logstash_exporter
+cd $GOPATH/src/github.com/sequra/logstash_exporter
 make
 ./logstash_exporter --web.listen-address=:1234 --logstash.endpoint="http://localhost:1235"
 ```

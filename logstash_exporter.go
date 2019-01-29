@@ -1,15 +1,16 @@
 package main
 
 import (
-	"github.com/mpucholblasco/logstash_exporter/collector"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
-	"github.com/prometheus/common/version"
-	"gopkg.in/alecthomas/kingpin.v2"
 	"net/http"
 	_ "net/http/pprof"
 	"sync"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
+	"github.com/prometheus/common/version"
+	"github.com/sequra/logstash_exporter/collector"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (

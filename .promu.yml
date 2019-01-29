@@ -1,7 +1,7 @@
 go:
     cgo: false
 repository:
-    path: github.com/mpucholblasco/logstash_exporter
+    path: github.com/sequra/logstash_exporter
 build:
     binaries:
         - name: logstash_exporter
@@ -16,4 +16,3 @@ build:
 tarball:
     files:
         - LICENSE
-        - NOTICE

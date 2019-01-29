@@ -350,19 +350,14 @@ func NewNodeStatsCollector(logstashEndpoint string) (Collector, error) {
 
 // Collect function implements nodestats_collector collector
 func (c *NodeStatsCollector) Collect(ch chan<- prometheus.Metric) error {
-	if desc, err := c.collect(ch); err != nil {
-		log.Error("Failed collecting node metrics", desc, err)
+	if err := c.collect(ch); err != nil {
+		log.Errorf("Failed collecting node metrics: %v", err)
 		return err
 	}
 	return nil
 }
 
-func (c *NodeStatsCollector) collect(ch chan<- prometheus.Metric) (*prometheus.Desc, error) {
-	stats, err := NodeStats(c.endpoint)
-	if err != nil {
-		return nil, err
-	}
-
+func (c *NodeStatsCollector) collectJVM(stats NodeStatsResponse, ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(
 		c.JvmThreadsCount,
 		prometheus.GaugeValue,
@@ -537,7 +532,9 @@ func (c *NodeStatsCollector) collect(ch chan<- prometheus.Metric) (*prometheus.D
 		float64(stats.Jvm.Gc.Collectors.Young.CollectionCount),
 		"young",
 	)
+}
 
+func (c *NodeStatsCollector) collectProcess(stats NodeStatsResponse, ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(
 		c.ProcessOpenFileDescriptors,
 		prometheus.GaugeValue,
@@ -561,14 +558,9 @@ func (c *NodeStatsCollector) collect(ch chan<- prometheus.Metric) (*prometheus.D
 		prometheus.CounterValue,
 		float64(stats.Process.CPU.TotalInMillis/1000),
 	)
+}
 
-	// For backwards compatibility with Logstash 5
-	pipelines := make(map[string]Pipeline)
-	if len(stats.Pipelines) == 0 {
-		pipelines["main"] = stats.Pipeline
-	} else {
-		pipelines = stats.Pipelines
-	}
+func (c *NodeStatsCollector) collectPipelines(pipelines map[string]Pipeline, ch chan<- prometheus.Metric) {
 
 	for pipelineID, pipeline := range pipelines {
 		ch <- prometheus.MustNewConstMetric(
@@ -809,6 +801,25 @@ func (c *NodeStatsCollector) collect(ch chan<- prometheus.Metric) (*prometheus.D
 			)
 		}
 	}
+}
 
-	return nil, nil
+func (c *NodeStatsCollector) collect(ch chan<- prometheus.Metric) error {
+	stats, err := NodeStats(c.endpoint)
+	if err != nil {
+		return err
+	}
+
+	c.collectJVM(stats, ch)
+	c.collectProcess(stats, ch)
+
+	// For backwards compatibility with Logstash 5
+	pipelines := make(map[string]Pipeline)
+	if len(stats.Pipelines) == 0 {
+		pipelines["main"] = stats.Pipeline
+	} else {
+		pipelines = stats.Pipelines
+	}
+	c.collectPipelines(pipelines, ch)
+
+	return nil
 }
