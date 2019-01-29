@@ -77,6 +77,7 @@ Flags:
 * `logstash_node_queue_max_size_bytes` (counter)
 * `logstash_node_queue_max_unread_events`: queue_max_ (counter)
 * `logstash_node_queue_page_capacity_bytes`: queue_page_capacity_bytes (counter)
+* `logstash_node_up`: whether logstash node is up (1) or not (0) (gauge)
 
 ## Integration tests
 In order to execute manual integration tests (to know if certain logstash version is compatible with logstash-exporter), you can follow instructions present on file [integration-tests/README.md](integration-tests/README.md).
