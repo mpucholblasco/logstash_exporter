@@ -88,7 +88,7 @@ func execute(name string, c collector.Collector, ch chan<- prometheus.Metric) {
 	var result string
 
 	if err != nil {
-		log.Errorf("ERROR: %s collector failed after %fs: %s", name, duration.Seconds(), err)
+		log.Debugf("ERROR: %s collector failed after %fs: %s", name, duration.Seconds(), err)
 		result = "error"
 	} else {
 		log.Debugf("OK: %s collector succeeded after %fs.", name, duration.Seconds())

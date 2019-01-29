@@ -1,9 +1,9 @@
 package collector
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"strconv"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // NodeInfoCollector type
@@ -47,17 +47,9 @@ func NewNodeInfoCollector(logstashEndpoint string) (Collector, error) {
 
 // Collect function implements nodestats_collector collector
 func (c *NodeInfoCollector) Collect(ch chan<- prometheus.Metric) error {
-	if desc, err := c.collect(ch); err != nil {
-		log.Error("Failed collecting info metrics", desc, err)
-		return err
-	}
-	return nil
-}
-
-func (c *NodeInfoCollector) collect(ch chan<- prometheus.Metric) (*prometheus.Desc, error) {
 	stats, err := NodeInfo(c.endpoint)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	ch <- prometheus.MustNewConstMetric(
@@ -86,5 +78,5 @@ func (c *NodeInfoCollector) collect(ch chan<- prometheus.Metric) (*prometheus.De
 		stats.Jvm.VMVendor,
 	)
 
-	return nil, nil
+	return nil
 }

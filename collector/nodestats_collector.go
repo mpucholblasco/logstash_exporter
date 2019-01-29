@@ -2,12 +2,13 @@ package collector
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 )
 
 // NodeStatsCollector type
 type NodeStatsCollector struct {
 	endpoint string
+
+	Up *prometheus.Desc
 
 	JvmThreadsCount     *prometheus.Desc
 	JvmThreadsPeakCount *prometheus.Desc
@@ -65,6 +66,13 @@ func NewNodeStatsCollector(logstashEndpoint string) (Collector, error) {
 
 	return &NodeStatsCollector{
 		endpoint: logstashEndpoint,
+
+		Up: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "up"),
+			"up",
+			nil,
+			nil,
+		),
 
 		JvmThreadsCount: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, subsystem, "jvm_threads_count"),
@@ -350,10 +358,35 @@ func NewNodeStatsCollector(logstashEndpoint string) (Collector, error) {
 
 // Collect function implements nodestats_collector collector
 func (c *NodeStatsCollector) Collect(ch chan<- prometheus.Metric) error {
-	if err := c.collect(ch); err != nil {
-		log.Errorf("Failed collecting node metrics: %v", err)
+	stats, err := NodeStats(c.endpoint)
+	if err != nil {
+		ch <- prometheus.MustNewConstMetric(
+			c.Up,
+			prometheus.GaugeValue,
+			0,
+		)
+
 		return err
 	}
+
+	ch <- prometheus.MustNewConstMetric(
+		c.Up,
+		prometheus.GaugeValue,
+		1,
+	)
+
+	c.collectJVM(stats, ch)
+	c.collectProcess(stats, ch)
+
+	// For backwards compatibility with Logstash 5
+	pipelines := make(map[string]Pipeline)
+	if len(stats.Pipelines) == 0 {
+		pipelines["main"] = stats.Pipeline
+	} else {
+		pipelines = stats.Pipelines
+	}
+	c.collectPipelines(pipelines, ch)
+
 	return nil
 }
 
@@ -561,7 +594,6 @@ func (c *NodeStatsCollector) collectProcess(stats NodeStatsResponse, ch chan<- p
 }
 
 func (c *NodeStatsCollector) collectPipelines(pipelines map[string]Pipeline, ch chan<- prometheus.Metric) {
-
 	for pipelineID, pipeline := range pipelines {
 		ch <- prometheus.MustNewConstMetric(
 			c.PipelineDuration,
@@ -801,25 +833,4 @@ func (c *NodeStatsCollector) collectPipelines(pipelines map[string]Pipeline, ch 
 			)
 		}
 	}
-}
-
-func (c *NodeStatsCollector) collect(ch chan<- prometheus.Metric) error {
-	stats, err := NodeStats(c.endpoint)
-	if err != nil {
-		return err
-	}
-
-	c.collectJVM(stats, ch)
-	c.collectProcess(stats, ch)
-
-	// For backwards compatibility with Logstash 5
-	pipelines := make(map[string]Pipeline)
-	if len(stats.Pipelines) == 0 {
-		pipelines["main"] = stats.Pipeline
-	} else {
-		pipelines = stats.Pipelines
-	}
-	c.collectPipelines(pipelines, ch)
-
-	return nil
 }

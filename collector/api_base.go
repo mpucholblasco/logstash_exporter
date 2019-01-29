@@ -2,8 +2,9 @@ package collector
 
 import (
 	"encoding/json"
-	"github.com/prometheus/common/log"
 	"net/http"
+
+	"github.com/prometheus/common/log"
 )
 
 // HTTPHandler type
@@ -29,20 +30,20 @@ type HTTPHandlerInterface interface {
 func getMetrics(h HTTPHandlerInterface, target interface{}) error {
 	response, err := h.Get()
 	if err != nil {
-		log.Errorf("Cannot retrieve metrics: %s", err)
-		return nil
+		log.Errorf("Cannot retrieve metrics: %v", err)
+		return err
 	}
 
 	defer func() {
-		err = response.Body.Close()
-		if err != nil {
+		if err := response.Body.Close(); err != nil {
 			log.Errorf("Cannot close response body: %v", err)
 		}
 	}()
 
-	if err := json.NewDecoder(response.Body).Decode(target); err != nil {
-		log.Errorf("Cannot parse Logstash response json: %s", err)
+	err = json.NewDecoder(response.Body).Decode(target)
+	if err != nil {
+		log.Errorf("Cannot parse Logstash response json: %v", err)
 	}
 
-	return nil
+	return err
 }

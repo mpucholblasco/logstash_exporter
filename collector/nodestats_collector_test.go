@@ -2,6 +2,7 @@ package collector
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -404,7 +405,6 @@ var dlQueueJSON = []byte(`
 
 type MockHTTPHandler struct {
 	ReturnJSON []byte
-	Endpoint   string
 }
 
 func (m *MockHTTPHandler) Get() (http.Response, error) {
@@ -413,6 +413,12 @@ func (m *MockHTTPHandler) Get() (http.Response, error) {
 	}
 
 	return *response, nil
+}
+
+type MockHTTPErrorHandler struct{}
+
+func (m *MockHTTPErrorHandler) Get() (http.Response, error) {
+	return http.Response{}, fmt.Errorf("Connection refused")
 }
 
 func TestPipelineNoQueueStats(t *testing.T) {
@@ -455,4 +461,13 @@ func TestPipelineDLQueueStats(t *testing.T) {
 	getMetrics(m, &response)
 
 	assert.Equal(t, 1337, response.Pipeline.DeadLetterQueue.QueueSizeInBytes)
+}
+
+func TestErrorConnectionToLogstash(t *testing.T) {
+	var response NodeStatsResponse
+
+	m := &MockHTTPErrorHandler{}
+	err := getMetrics(m, &response)
+
+	assert.NotNil(t, err)
 }
