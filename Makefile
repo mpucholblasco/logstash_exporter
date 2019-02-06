@@ -20,7 +20,7 @@ format:
 
 gometalinter: $(GOLINTER)
 	@echo ">> linting code"
-	@$(GOLINTER) --install --update > /dev/null
+	@$(GOLINTER) --install --update --no-vendored-linters > /dev/null
 	@$(GOLINTER) --config=./.gometalinter.json ./...
 
 build: $(PROMU)
