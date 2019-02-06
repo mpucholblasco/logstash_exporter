@@ -81,15 +81,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:adace4b303867385ba60abf9337de102689e96d47fc9a48c29fde202e12dd229"
+  digest = "1:cd67319ee7536399990c4b00fae07c3413035a53193c644549a676091507cadc"
   name = "github.com/prometheus/client_model"
   packages = ["go"]
   pruneopts = ""
-  revision = "56726106282f1985ea77d5305743db7231b0c0a8"
+  revision = "fd36f4220a901265f90734c3183c5f0c91daa0b8"
 
 [[projects]]
-  branch = "master"
-  digest = "1:43465e4460e21f6462de4dbfdd864a2a48b743b25175d436932fb3e09765c937"
+  digest = "1:96af18a3819d2ff7d6aa07e6e50955b11e477dbc8b890324c67462b84adca56b"
   name = "github.com/prometheus/common"
   packages = [
     "expfmt",
@@ -99,11 +98,12 @@
     "version",
   ]
   pruneopts = ""
-  revision = "2998b132700a7d019ff618c06a234b47c1f3f681"
+  revision = "cfeb6f9992ffa54aaa4f2170ade4067ee478b250"
+  version = "v0.2.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:b9f39c2f3278c4c3e9901d9b6a9b0316a1cb54fa6a0367e3498a8e8babc773b3"
+  digest = "1:230f90b694597f10aa308d39e1cd3773c613fcd02b26f81aa69b928538bf65d4"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -112,7 +112,7 @@
     "xfs",
   ]
   pruneopts = ""
-  revision = "bf6a532e95b1f7a62adf0ab5050a5bb2237ad2f4"
+  revision = "488faf799f863e27e50c516468f76ae8f1da20a5"
 
 [[projects]]
   digest = "1:9a3c631555e0351fdc4e696577bb63afd90c399d782a8462dba9d100d7021db3"
@@ -132,15 +132,15 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:59b49c47c11a48f1054529207f65907c014ecf5f9a7c0d9c0f1616dec7b062ed"
+  digest = "1:cbc1ebc01ec2ceb2c3cc7b9e33357dbc3eff173335f02d9f01603f14102602a7"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   pruneopts = ""
-  revision = "ff983b9c42bc9fbf91556e191cc8efb585c16908"
+  revision = "b8fe1690c61389d7d2a8074a507d1d40c5d30448"
 
 [[projects]]
   branch = "master"
-  digest = "1:851d398c9d0b45a3d8496ad6f50d690dd1df7918a309acd23956d73f1ac9adb4"
+  digest = "1:489610147902fe0c7229218c749bb25a8a9ecce0d726ae4f8662517319f32554"
   name = "golang.org/x/sys"
   packages = [
     "unix",
@@ -149,7 +149,7 @@
     "windows/svc/eventlog",
   ]
   pruneopts = ""
-  revision = "770c60269bf0ef965e9e7ac8bedcb6bca2a1cefd"
+  revision = "41f3e6584952bb034a481797859f6ab34b6803bd"
 
 [[projects]]
   digest = "1:15d017551627c8bb091bde628215b2861bed128855343fdd570c62d08871f6e1"
