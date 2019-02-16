@@ -8,7 +8,7 @@ TARGET          ?= logstash_exporter
 PREFIX          ?= $(shell pwd)
 BIN_DIR         ?= $(shell pwd)
 
-all: clean format vet lint build test
+all: clean format golint build test
 
 test:
 	@echo ">> running tests"
@@ -18,15 +18,11 @@ format:
 	@echo ">> formatting code"
 	@$(GO) fmt $(pkgs)
 
-vet:
-	@echo ">> vet code"
-	@$(GO) vet
-
-lint: $(GOLINTER)
+golint:
 	@echo ">> linting code"
 	@$(GOLINTER) run
 
-build: $(PROMU)
+build:
 	@echo ">> building binaries"
 	@$(PROMU) build --prefix $(PREFIX)
 
@@ -35,4 +31,4 @@ clean:
 	@find . -type f -name '*~' -exec rm -fv {} \;
 	@rm -fv $(TARGET)
 
-.PHONY: all clean format vet lint build test
+.PHONY: all clean format golint build test
