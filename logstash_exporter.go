@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/common/version"
 	"github.com/sequra/logstash_exporter/collector"
@@ -51,7 +52,7 @@ func NewLogstashCollector(logstashEndpoint string) (*LogstashCollector, error) {
 }
 
 func listen(exporterBindAddress string) {
-	http.Handle("/metrics", prometheus.Handler())
+	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/metrics", http.StatusMovedPermanently)
 	})

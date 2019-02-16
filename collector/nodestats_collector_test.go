@@ -425,8 +425,9 @@ func TestPipelineNoQueueStats(t *testing.T) {
 	var response NodeStatsResponse
 
 	m := &MockHTTPHandler{ReturnJSON: noQueueJSON}
-	getMetrics(m, &response)
+	err := getMetrics(m, &response)
 
+	assert.Nil(t, err)
 	assert.NotEqual(t, 12, response.Pipeline.Queue.Capacity.MaxUnreadEvents)
 	assert.Nil(t, response.Pipeline.Plugins.Outputs[0].Documents)
 	assert.Nil(t, response.Pipeline.Plugins.Outputs[0].BulkRequests)
@@ -436,8 +437,9 @@ func TestPipelineElasticSearchOutputStats(t *testing.T) {
 	var response NodeStatsResponse
 
 	m := &MockHTTPHandler{ReturnJSON: elasticSearchOutputJSON}
-	getMetrics(m, &response)
+	err := getMetrics(m, &response)
 
+	assert.Nil(t, err)
 	assert.Equal(t, 865539, response.Pipeline.Plugins.Outputs[0].Documents.Successes)
 	assert.Equal(t, 600, response.Pipeline.Plugins.Outputs[0].Documents.NonRetryableFailures)
 	assert.Equal(t, 204398, response.Pipeline.Plugins.Outputs[0].BulkRequests.Successes)
@@ -449,8 +451,9 @@ func TestPipelineQueueStats(t *testing.T) {
 	var response NodeStatsResponse
 
 	m := &MockHTTPHandler{ReturnJSON: queueJSON}
-	getMetrics(m, &response)
+	err := getMetrics(m, &response)
 
+	assert.Nil(t, err)
 	assert.Equal(t, 12, response.Pipeline.Queue.Capacity.MaxUnreadEvents)
 }
 
@@ -458,8 +461,9 @@ func TestPipelineDLQueueStats(t *testing.T) {
 	var response NodeStatsResponse
 
 	m := &MockHTTPHandler{ReturnJSON: dlQueueJSON}
-	getMetrics(m, &response)
+	err := getMetrics(m, &response)
 
+	assert.Nil(t, err)
 	assert.Equal(t, 1337, response.Pipeline.DeadLetterQueue.QueueSizeInBytes)
 }
 
