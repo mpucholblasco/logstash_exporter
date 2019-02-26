@@ -4,3 +4,8 @@
 logstash_exporter
 #Vendoring
 vendor/*
+
+/.build
+/.deps
+/.release
+/.tarballs
