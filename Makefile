@@ -1,10 +1,9 @@
 include Makefile.common
 
-GOLINTER        ?= $(GOPATH)/bin/golangci-lint
+TARGET   ?= logstash_exporter
+GOLINTER ?= $(GOPATH)/bin/golangci-lint
 
-PROMU_INSTALLED_VERSION := $(word 3, $(shell $(PROMU) version 2>/dev/null))
-
-all: clean format golint test build
+all: clean format golint build test
 
 vendor:
 	@echo ">> installing dependencies on vendor"
