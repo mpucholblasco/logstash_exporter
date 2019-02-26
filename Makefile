@@ -1,9 +1,9 @@
+all: clean format golint
+
 include Makefile.common
 
 TARGET   ?= logstash_exporter
 GOLINTER ?= $(GOPATH)/bin/golangci-lint
-
-all: clean format golint build test
 
 vendor:
 	@echo ">> installing dependencies on vendor"
