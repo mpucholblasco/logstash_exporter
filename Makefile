@@ -1,7 +1,7 @@
 include Makefile.common
 
-PROMU_VERSION ?= 0.2.0
-PROMU_URL := https://github.com/prometheus/promu/releases/download/v$(PROMU_VERSION)/promu-$(PROMU_VERSION).$(GO_BUILD_PLATFORM).tar.gz
+GOLINTER        ?= $(GOPATH)/bin/golangci-lint
+
 PROMU_INSTALLED_VERSION := $(word 3, $(shell $(PROMU) version 2>/dev/null))
 
 all: clean format golint test build
