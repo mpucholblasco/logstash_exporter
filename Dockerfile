@@ -3,6 +3,7 @@ FROM golang:latest as golang
 
 # See: https://github.com/golang/dep/releases
 ARG GODEP_VERSION=v0.5.0
+# See: https://github.com/golangci/golangci-lint/releases
 ARG GOLINT_VERSION=v1.15.0
 
 ##
@@ -19,7 +20,7 @@ RUN curl --silent --fail --location https://install.goreleaser.com/github.com/go
 # Fetch the source
 RUN go get -u github.com/sequra/logstash_exporter
 
-# Fetch the source and dependencies
+# Fetch dependencies
 RUN cd $GOPATH/src/github.com/sequra/logstash_exporter && \
         dep init && \
         dep ensure
