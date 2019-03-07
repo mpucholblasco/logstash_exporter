@@ -1,5 +1,7 @@
-# Logstash exporter [![Build Status](https://travis-ci.org/sequra/logstash_exporter.svg)][travis](https://travis-ci.org/sequra/logstash_exporter/)
+# Logstash exporter [![Build Status](https://travis-ci.org/sequra/logstash_exporter.svg)]
 Prometheus exporter for the metrics available in Logstash since version 5.0.
+
+Continuous integration: [travis](https://travis-ci.org/sequra/logstash_exporter/)
 
 ## Usage
 
