@@ -2,24 +2,26 @@ all: clean format golint
 
 include Makefile.common
 
-TARGET   ?= logstash_exporter
-GOLINTER ?= $(GOPATH)/bin/golangci-lint
+TARGET ?= logstash_exporter
+
+GOLINT         := $(FIRST_GOPATH)/bin/golangci-lint
+GOLINT_VERSION := v1.15.0
 
 vendor:
 	@echo ">> installing dependencies on vendor"
-	@$(GO) mod vendor
+	GO111MODULE=$(GO111MODULE) $(GO) mod vendor
 
 test:
 	@echo ">> running tests"
-	@$(GO) test -short $(pkgs)
+	GO111MODULE=$(GO111MODULE) $(GO) test -short $(pkgs)
 
 format:
 	@echo ">> formatting code"
-	@$(GO) fmt $(pkgs)
+	GO111MODULE=$(GO111MODULE) $(GO) fmt $(pkgs)
 
-golint:
+golint: golangci-lint
 	@echo ">> linting code"
-	@$(GOLINTER) run
+	GO111MODULE=$(GO111MODULE) $(GOLINT) run
 
 build: promu vendor
 	@echo ">> building binaries"
@@ -27,15 +29,15 @@ build: promu vendor
 
 crossbuild: promu vendor
 	@echo ">> cross-building binaries"
-	@$(PROMU) crossbuild
+	GO111MODULE=$(GO111MODULE) $(PROMU) crossbuild
 
 tarball: promu vendor
 	@echo ">> building release tarball"
-	@$(PROMU) tarball --prefix $(PREFIX) $(BIN_DIR)
+	GO111MODULE=$(GO111MODULE) $(PROMU) tarball --prefix $(PREFIX) $(BIN_DIR)
 
 tarballs: promu vendor
 	@echo ">> building release tarballs"
-	@$(PROMU) crossbuild tarballs $(BIN_DIR)
+	GO111MODULE=$(GO111MODULE) $(PROMU) crossbuild tarballs $(BIN_DIR)
 
 clean:
 	@echo ">> Cleaning up"
@@ -43,3 +45,9 @@ clean:
 	@rm -fv $(TARGET)
 
 .PHONY: all clean format golint build test
+
+.PHONY: golangci-lint
+golangci-lint: $(GOLINT)
+
+$(GOLINT):
+	curl --silent --fail --location https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(FIRST_GOPATH)/bin ${GOLINT_VERSION}

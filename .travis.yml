@@ -6,11 +6,5 @@ go:
 - 1.11.x
 - tip
 
-env:
-  - GO111MODULE=on
-
-before_script:
-  - go get github.com/golangci/golangci-lint/cmd/golangci-lint
-
 script:
   - make
