@@ -589,7 +589,7 @@ func (c *NodeStatsCollector) collectProcess(stats NodeStatsResponse, ch chan<- p
 	ch <- prometheus.MustNewConstMetric(
 		c.ProcessCPUTotalInMillis,
 		prometheus.CounterValue,
-		float64(stats.Process.CPU.TotalInMillis/1000),
+		float64(stats.Process.CPU.TotalInMillis)/1000,
 	)
 }
 
@@ -598,14 +598,14 @@ func (c *NodeStatsCollector) collectPipelines(pipelines map[string]Pipeline, ch 
 		ch <- prometheus.MustNewConstMetric(
 			c.PipelineDuration,
 			prometheus.CounterValue,
-			float64(pipeline.Events.DurationInMillis/1000),
+			float64(pipeline.Events.DurationInMillis)/1000,
 			pipelineID,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.PipelineQueuePushDuration,
 			prometheus.CounterValue,
-			float64(pipeline.Events.QueuePushDurationInMillis/1000),
+			float64(pipeline.Events.QueuePushDurationInMillis)/1000,
 			pipelineID,
 		)
 
@@ -652,7 +652,7 @@ func (c *NodeStatsCollector) collectPipelines(pipelines map[string]Pipeline, ch 
 			ch <- prometheus.MustNewConstMetric(
 				c.PipelinePluginEventsQueuePushDuration,
 				prometheus.CounterValue,
-				float64(plugin.Events.QueuePushDurationInMillis/1000),
+				float64(plugin.Events.QueuePushDurationInMillis)/1000,
 				pipelineID,
 				plugin.Name,
 				plugin.ID,
@@ -664,7 +664,7 @@ func (c *NodeStatsCollector) collectPipelines(pipelines map[string]Pipeline, ch 
 			ch <- prometheus.MustNewConstMetric(
 				c.PipelinePluginEventsDuration,
 				prometheus.CounterValue,
-				float64(plugin.Events.DurationInMillis/1000),
+				float64(plugin.Events.DurationInMillis)/1000,
 				pipelineID,
 				plugin.Name,
 				plugin.ID,
@@ -730,7 +730,7 @@ func (c *NodeStatsCollector) collectPipelines(pipelines map[string]Pipeline, ch 
 			ch <- prometheus.MustNewConstMetric(
 				c.PipelinePluginEventsDuration,
 				prometheus.CounterValue,
-				float64(plugin.Events.DurationInMillis/1000),
+				float64(plugin.Events.DurationInMillis)/1000,
 				pipelineID,
 				plugin.Name,
 				plugin.ID,
