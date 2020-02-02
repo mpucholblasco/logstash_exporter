@@ -1,5 +1,5 @@
 # See: https://hub.docker.com/_/golang/
-FROM golang:latest as golang
+FROM golang:1.13 as golang
 
 # Fetch the source
 RUN go get -u github.com/sequra/logstash_exporter
