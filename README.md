@@ -70,6 +70,8 @@ Flags:
 * `logstash_node_plugin_queue_push_duration_seconds_total` (counter)
 * `logstash_node_plugin_events_in_total` (counter)
 * `logstash_node_plugin_events_out_total` (counter)
+* `logstash_node_plugin_current_connections_count` (gauge)
+* `logstash_node_plugin_peak_connections_count` (gauge)
 * `logstash_node_process_cpu_total_seconds_total` (counter)
 * `logstash_node_process_max_filedescriptors` (gauge)
 * `logstash_node_process_mem_total_virtual_bytes` (gauge)

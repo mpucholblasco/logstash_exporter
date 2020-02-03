@@ -1,0 +1,41 @@
+version: '3.7'
+services:
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.5.2
+    container_name: logstash
+    user: root
+    networks:
+      - stack
+    environment:
+      - XPACK_MONITORING_ENABLED=false
+    ports:
+      - "9600:9600"
+      - "5044:5044"
+    volumes:
+      - ./pipeline-logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    healthcheck:
+      test: bin/logstash -t
+      interval: 60s
+      timeout: 50s
+      retries: 5
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.5.2
+    container_name: filebeat
+    user: root
+    command: --strict.perms=false -e -d "*"
+    networks:
+      - stack
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./test.log:/tmp/test.log
+    depends_on:
+      - logstash
+    healthcheck:
+      test: filebeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
+
+networks:
+  stack:
+    driver: bridge

@@ -50,6 +50,8 @@ type NodeStatsCollector struct {
 	PipelinePluginBulkRequestsFailures    *prometheus.Desc
 	PipelinePluginMatches                 *prometheus.Desc
 	PipelinePluginFailures                *prometheus.Desc
+	PipelinePluginCurrentConnections      *prometheus.Desc
+	PipelinePluginPeakConnections         *prometheus.Desc
 
 	PipelineQueueEvents          *prometheus.Desc
 	PipelineQueuePageCapacity    *prometheus.Desc
@@ -308,6 +310,20 @@ func NewNodeStatsCollector(logstashEndpoint string) (Collector, error) {
 		PipelinePluginFailures: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, subsystem, "plugin_failures_total"),
 			"plugin_failures",
+			[]string{"pipeline", "plugin", "plugin_id", "plugin_type"},
+			nil,
+		),
+
+		PipelinePluginCurrentConnections: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "plugin_current_connections_count"),
+			"plugin_current_connections",
+			[]string{"pipeline", "plugin", "plugin_id", "plugin_type"},
+			nil,
+		),
+
+		PipelinePluginPeakConnections: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "plugin_peak_connections_count"),
+			"plugin_peak_connections",
 			[]string{"pipeline", "plugin", "plugin_id", "plugin_type"},
 			nil,
 		),
@@ -658,6 +674,28 @@ func (c *NodeStatsCollector) collectPipelines(pipelines map[string]Pipeline, ch 
 				plugin.ID,
 				"input",
 			)
+			if plugin.CurrentConnections != nil {
+				ch <- prometheus.MustNewConstMetric(
+					c.PipelinePluginCurrentConnections,
+					prometheus.GaugeValue,
+					float64(*plugin.CurrentConnections),
+					pipelineID,
+					plugin.Name,
+					plugin.ID,
+					"input",
+				)
+			}
+			if plugin.PeakConnections != nil {
+				ch <- prometheus.MustNewConstMetric(
+					c.PipelinePluginPeakConnections,
+					prometheus.GaugeValue,
+					float64(*plugin.PeakConnections),
+					pipelineID,
+					plugin.Name,
+					plugin.ID,
+					"input",
+				)
+			}
 		}
 
 		for _, plugin := range pipeline.Plugins.Filters {

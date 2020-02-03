@@ -17,7 +17,9 @@ type Pipeline struct {
 				In                        int `json:"in"`
 				Out                       int `json:"out"`
 			} `json:"events"`
-			Name string `json:"name"`
+			Name               string `json:"name"`
+			PeakConnections    *int   `json:"peak_connections,omitempty"`
+			CurrentConnections *int   `json:"current_connections,omitempty"`
 		} `json:"inputs,omitempty"`
 		Filters []struct {
 			ID     string `json:"id"`

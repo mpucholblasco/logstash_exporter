@@ -1,0 +1,11 @@
+filebeat.inputs:
+- type: log
+  fields_under_root: true
+  json.keys_under_root: true
+  json.add_error_key: true
+  paths:
+    - /tmp/test.log
+
+output.logstash:
+  hosts: ["logstash:5044"]
+  bulk_max_size: 200
