@@ -14,6 +14,6 @@ nfpms:
   - license: MIT
     maintainer: Dmitry Andreev <dmitry.andreev@insales.ru>
     vendor: InSales Rus LLC
-    description: Read *beat metrics and expose it in prometheus format
+    description: Prometheus exporter for the metrics available in Logstash
     formats:
       - deb
