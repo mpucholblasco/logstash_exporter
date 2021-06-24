@@ -57,7 +57,7 @@ func listen(exporterBindAddress string) {
 		http.Redirect(w, r, "/metrics", http.StatusMovedPermanently)
 	})
 
-	log.Println("Starting server on\n", exporterBindAddress)
+	log.Printf("Starting server on\n", exporterBindAddress)
 	if err := http.ListenAndServe(exporterBindAddress, nil); err != nil {
 		log.Fatalf("Cannot start Logstash exporter: %s\n", err)
 	}
@@ -89,10 +89,10 @@ func execute(name string, c collector.Collector, ch chan<- prometheus.Metric) {
 	var result string
 
 	if err != nil {
-		log.Println("ERROR: %s collector failed after %fs: %s\n", name, duration.Seconds(), err)
+		log.Printf("ERROR: %s collector failed after %fs: %s\n", name, duration.Seconds(), err)
 		result = "error"
 	} else {
-		log.Println("OK: %s collector succeeded after %fs.\n", name, duration.Seconds())
+		log.Printf("OK: %s collector succeeded after %fs.\n", name, duration.Seconds())
 		result = "success"
 	}
 	scrapeDurations.WithLabelValues(name, result).Observe(duration.Seconds())
@@ -119,7 +119,7 @@ func main() {
 
 	prometheus.MustRegister(logstashCollector)
 
-	log.Println("Starting Logstash exporter\n", version.Info())
-	log.Println("Build context\n", version.BuildContext())
+	log.Printf("Starting Logstash exporter\n", version.Info())
+	log.Printf("Build context\n", version.BuildContext())
 	listen(*exporterBindAddress)
 }
