@@ -57,7 +57,7 @@ func listen(exporterBindAddress string) {
 		http.Redirect(w, r, "/metrics", http.StatusMovedPermanently)
 	})
 
-	log.Printf("Starting server on\n", exporterBindAddress)
+	log.Println("Starting server on", exporterBindAddress)
 	if err := http.ListenAndServe(exporterBindAddress, nil); err != nil {
 		log.Fatalf("Cannot start Logstash exporter: %s\n", err)
 	}
@@ -119,7 +119,7 @@ func main() {
 
 	prometheus.MustRegister(logstashCollector)
 
-	log.Printf("Starting Logstash exporter\n", version.Info())
-	log.Printf("Build context\n", version.BuildContext())
+	log.Println("Starting Logstash exporter", version.Info())
+	log.Println("Build context", version.BuildContext())
 	listen(*exporterBindAddress)
 }
