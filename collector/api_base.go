@@ -2,8 +2,8 @@ package collector
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
-    "log"
 )
 
 // HTTPHandler type

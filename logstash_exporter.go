@@ -6,7 +6,7 @@ import (
 	_ "net/http/pprof"
 	"sync"
 	"time"
-             
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
@@ -108,7 +108,6 @@ func main() {
 		exporterBindAddress = kingpin.Flag("web.listen-address", "Address on which to expose metrics and web interface.").Default(":9198").String()
 	)
 
-	//log.AddFlags(kingpin.CommandLine)
 	kingpin.Version(version.Print("logstash_exporter"))
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
@@ -120,7 +119,7 @@ func main() {
 
 	prometheus.MustRegister(logstashCollector)
 
-	log.Println("Starting Logstash exporter", version.Info())
-	log.Println("Build context", version.BuildContext())
+	log.Println("Starting Logstash exporter\n", version.Info())
+	log.Println("Build context\n", version.BuildContext())
 	listen(*exporterBindAddress)
 }
