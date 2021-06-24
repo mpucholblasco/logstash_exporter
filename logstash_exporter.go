@@ -2,13 +2,13 @@ package main
 
 import (
 	"net/http"
+	"log"
 	_ "net/http/pprof"
 	"sync"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/prometheus/common/log"
 	"github.com/prometheus/common/version"
 	"github.com/sequra/logstash_exporter/collector"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -35,12 +35,12 @@ type LogstashCollector struct {
 func NewLogstashCollector(logstashEndpoint string) (*LogstashCollector, error) {
 	nodeStatsCollector, err := collector.NewNodeStatsCollector(logstashEndpoint)
 	if err != nil {
-		log.Fatalf("Cannot register a new collector: %v", err)
+		log.Fatalf("Cannot register a new collector: %v\n", err)
 	}
 
 	nodeInfoCollector, err := collector.NewNodeInfoCollector(logstashEndpoint)
 	if err != nil {
-		log.Fatalf("Cannot register a new collector: %v", err)
+		log.Fatalf("Cannot register a new collector: %v\n", err)
 	}
 
 	return &LogstashCollector{
@@ -57,9 +57,9 @@ func listen(exporterBindAddress string) {
 		http.Redirect(w, r, "/metrics", http.StatusMovedPermanently)
 	})
 
-	log.Infoln("Starting server on", exporterBindAddress)
+	log.Println("Starting server on", exporterBindAddress)
 	if err := http.ListenAndServe(exporterBindAddress, nil); err != nil {
-		log.Fatalf("Cannot start Logstash exporter: %s", err)
+		log.Fatalf("Cannot start Logstash exporter: %s\n", err)
 	}
 }
 
@@ -89,10 +89,10 @@ func execute(name string, c collector.Collector, ch chan<- prometheus.Metric) {
 	var result string
 
 	if err != nil {
-		log.Debugf("ERROR: %s collector failed after %fs: %s", name, duration.Seconds(), err)
+		log.Printf("ERROR: %s collector failed after %fs: %s\n", name, duration.Seconds(), err)
 		result = "error"
 	} else {
-		log.Debugf("OK: %s collector succeeded after %fs.", name, duration.Seconds())
+		log.Printf("OK: %s collector succeeded after %fs.\n", name, duration.Seconds())
 		result = "success"
 	}
 	scrapeDurations.WithLabelValues(name, result).Observe(duration.Seconds())
@@ -108,7 +108,6 @@ func main() {
 		exporterBindAddress = kingpin.Flag("web.listen-address", "Address on which to expose metrics and web interface.").Default(":9198").String()
 	)
 
-	log.AddFlags(kingpin.CommandLine)
 	kingpin.Version(version.Print("logstash_exporter"))
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
@@ -120,7 +119,7 @@ func main() {
 
 	prometheus.MustRegister(logstashCollector)
 
-	log.Infoln("Starting Logstash exporter", version.Info())
-	log.Infoln("Build context", version.BuildContext())
+	log.Println("Starting Logstash exporter", version.Info())
+	log.Println("Build context", version.BuildContext())
 	listen(*exporterBindAddress)
 }
